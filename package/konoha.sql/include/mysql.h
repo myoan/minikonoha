@@ -30,12 +30,20 @@
 //  shinpei_nkt  - Shinpei Nakata, Yokohama National University, Japan (ntrace)
 // **************************************************************************
 
+#include<minikonoha/minikonoha.h>
+#include<minikonoha/sugar.h>
+#include<minikonoha/bytes.h>
 #include <mysql.h>
+#include <include/sql_common.h>
 
 #define MYSQL_USER_MAXLEN 16
 #define MYSQL_PASS_MAXLEN 255
 #define MYSQL_HOST_MAXLEN 255
 #define MYSQL_DBNM_MAXLEN 64
+
+/* ======================================================================== */
+
+extern kQueryDSPI_t DB__mysql;
 
 /* ======================================================================== */
 
@@ -87,7 +95,7 @@ kconn_t *MYSQL_qopen(KonohaContext *kctx, const char* url)
 /* ------------------------------------------------------------------------ */
 
 //static int MYSQL_qnext(KonohaContext *kctx, kqcur_t *qcur, kResultSet *rs)
-int MYSQL_qnext(KonohaContext *kctx, kqcur_t *qcursor, kResultSet *rs)
+int MYSQL_qnext(KonohaContext *kctx, kqcur_t *qcursor, struct _kResultSet *rs)
 {
 	MYSQL_ROW row;
 	if ((row = mysql_fetch_row((MYSQL_RES*)qcursor)) != NULL) {
@@ -222,7 +230,17 @@ void MYSQL_qfree(kqcur_t *qcur)
 	}
 }
 
-//const knh_QueryDSPI_t DB__mysql = {
-//	K_DSPI_QUERY, "mysql",
-//	MYSQL_qopen, MYSQL_query, MYSQL_qclose, MYSQL_qnext, MYSQL_qfree
-//};
+/* ------------------------------------------------------------------------ */
+/* [prototype function] */
+
+//kconn_t *MYSQL_qopen(KonohaContext *kctx, const char* url);
+//int MYSQL_qnext(KonohaContext *kctx, kqcur_t *qcursor, struct _kResultSet *rs);
+//kqcur_t *MYSQL_query(KonohaContext *kctx, void *hdr, const char* sql, struct _kResultSet *rs);
+//void MYSQL_qclose(kconn_t *db);
+//void MYSQL_qfree(kqcur_t *qcur);
+
+const kQueryDSPI_t DB__mysql = {
+	K_DSPI_QUERY, "mysql",
+	MYSQL_qopen, MYSQL_query, MYSQL_qclose, MYSQL_qnext, MYSQL_qfree
+};
+/* ------------------------------------------------------------------------ */

@@ -45,7 +45,7 @@ static int knh_ResultSet_indexof_(KonohaContext *kctx, KonohaStack *sfp)
 	if(IS_Int(sfp[1].asObject)) {
 		size_t n = (size_t)sfp[1].intValue;
 		if(!(n < o->column_size)) {
-			//THROW_OutOfRange(ctx, sfp, sfp[1].ivalue, DP(o)->column_size);
+			//THROW_OutOfRange(ctx, sfp, sfp[1].ivalue, (o)->column_size);
 			return -1;
 		}
 		return n;
@@ -63,51 +63,59 @@ static int knh_ResultSet_indexof_(KonohaContext *kctx, KonohaStack *sfp)
 	return -1;
 }
 
-///* ------------------------------------------------------------------------ */
-////## method Int ResultSet.getInt(dynamic n);
-//
-//KMETHOD ResultSet_getInt(KonohaContext *kctx, KonohaStack *sfp)
-//{
-////	int n = knh_ResultSet_indexof_(ctx, sfp);
-////	kint_t res = 0;
-////	if(n >= 0) {
-////		kResultSet *o = (kResultSet*)sfp[0].o;
-////		const char *p = BA_totext(DP(o)->databuf) + DP(o)->column[n].start;
-////		switch(DP(o)->column[n].ctype) {
-////		case knh_ResultSet_CTYPE__integer :
-////			res = *((kint_t*)p); break;
-////		case knh_ResultSet_CTYPE__float :
-////			res = (kint_t)(*((kfloat_t*)p)); break;
-////		case knh_ResultSet_CTYPE__null :
-////		default:
-////			KNH_SETv(ctx, sfp[_rix].o, KNH_NULVAL(CLASS_Int));
-////		}
-////	}
-////	RETURNi_(res);
-//}
-//
-///* ------------------------------------------------------------------------ */
-////## method Float ResultSet.getFloat(dynamic n);
-//
-//KMETHOD ResultSet_getFloat(KonohaContext *kctx, KonohaStack *sfp)
-//{
-////	int n = knh_ResultSet_indexof_(ctx, sfp);
-////	kfloat_t res = KFLOAT_ZERO;
-////	if(n >= 0) {
-////		kResultSet *o = (kResultSet*)sfp[0].o;
-////		const char *p = BA_totext(DP(o)->databuf) + DP(o)->column[n].start;
-////		switch(DP(o)->column[n].ctype) {
-////		case knh_ResultSet_CTYPE__integer :
-////			res = (kfloat_t)(*((kint_t*)p)); break;
-////		case knh_ResultSet_CTYPE__float :
-////			res = (*((kfloat_t*)p)); break;
-////		case knh_ResultSet_CTYPE__null :
-////		default:
-////			KNH_SETv(ctx, sfp[_rix].o, KNH_NULVAL(CLASS_Float));
-////		}
-////	}
-////	RETURNf_(res);
-//}
+/* ------------------------------------------------------------------------ */
+//## method Int ResultSet.getInt(dynamic n);
+
+KMETHOD ResultSet_getInt(KonohaContext *kctx, KonohaStack *sfp)
+{
+	fprintf(stderr, "hogehogehoge\n");
+	int n = knh_ResultSet_indexof_(kctx, sfp);
+	kint_t res = 0;
+	char data[16];
+	if(n >= 0) {
+		kResultSet *o = (kResultSet*)sfp[0].asObject;
+		const char *p = o->databuf->text + (o)->column[n].start;
+		switch((o)->column[n].ctype) {
+		case knh_ResultSet_CTYPE__integer :
+			memset(data, '\0', 16);
+			memcpy(data, p, o->column[n].len);
+			res = strtoll(data, NULL, 10);
+			//res = *((kint_t*)p); break;
+			break;
+		case knh_ResultSet_CTYPE__float :
+			res = (kint_t)(*((kfloat_t*)p)); break;
+		case knh_ResultSet_CTYPE__null :
+		default:
+			//KSETv(NULL, sfp[_rix].o, KNH_NULVAL(CLASS_Int));
+			break;
+		}
+	}
+	RETURNi_(res);
+}
+
+/* ------------------------------------------------------------------------ */
+//## method Float ResultSet.getFloat(dynamic n);
+
+KMETHOD ResultSet_getFloat(KonohaContext *kctx, KonohaStack *sfp)
+{
+	int n = knh_ResultSet_indexof_(kctx, sfp);
+	kfloat_t res = 0.0;
+	if(n >= 0) {
+		kResultSet *o = (kResultSet*)sfp[0].asObject;
+		const char *p = o->databuf->text + o->column[n].start;
+		switch((o)->column[n].ctype) {
+		case knh_ResultSet_CTYPE__integer :
+			res = (kfloat_t)(*((kint_t*)p)); break;
+		case knh_ResultSet_CTYPE__float :
+			res = (*((kfloat_t*)p)); break;
+		case knh_ResultSet_CTYPE__null :
+		default:
+			//KSETv(NULL, sfp[_rix].o, KNH_NULVAL(CLASS_Float));
+			break;
+		}
+	}
+	RETURNf_(res);
+}
 
 /* ------------------------------------------------------------------------ */
 //## method String ResultSet.getString(dynamic n);
@@ -121,10 +129,10 @@ KMETHOD ResultSet_getString(KonohaContext *kctx, KonohaStack *sfp)
 	switch(o->column[n].ctype) {
 	case knh_ResultSet_CTYPE__integer :
 		break;
-		//return new_String__int(kctx, (kint_t)(*((kint_t*)p)));
+		kbytes_t t = {o->column[n].len, {p}};
+		RETURN_(KLIB new_kString(kctx, t.text, t.len, 0));
 	case knh_ResultSet_CTYPE__float :
 		break;
-		//return new_String__int(kctx, (kint_t)(*((kint_t*)p)));
 		//return new_String__float(kctx, (kfloat_t)(*((kfloat_t*)p)));
 	case knh_ResultSet_CTYPE__text : {
 		kbytes_t t = {o->column[n].len, {p}};
@@ -153,8 +161,8 @@ KMETHOD ResultSet_getString(KonohaContext *kctx, KonohaStack *sfp)
 //	Object *v = KNH_NULL;
 //	if(n >= 0) {
 //		kResultSet *o = (kResultSet*)sfp[0].o;
-//		const char *p = BA_totext(DP(o)->databuf) + DP(o)->column[n].start;
-//		switch(DP(o)->column[n].ctype) {
+//		const char *p = BA_totext((o)->databuf) + (o)->column[n].start;
+//		switch((o)->column[n].ctype) {
 //		case knh_ResultSet_CTYPE__integer : {
 //			kint_t val;
 //			knh_memcpy(&val, p, sizeof(kint_t));
@@ -168,14 +176,14 @@ KMETHOD ResultSet_getString(KonohaContext *kctx, KonohaStack *sfp)
 //			RETURNf_((*((kfloat_t*)p)));
 //		}
 //		case knh_ResultSet_CTYPE__text : {
-//			kbytes_t t = {{BA_totext(DP(o)->databuf) + DP(o)->column[n].start}, DP(o)->column[n].len};
+//			kbytes_t t = {{BA_totext((o)->databuf) + (o)->column[n].start}, (o)->column[n].len};
 //			v = UPCAST(new_S(t.text, t.len));
 //			break;
 //		}
 //		case knh_ResultSet_CTYPE__bytes :
 //			{
-//				kBytes *ba = new_Bytes(ctx, BA_totext(DP(o)->databuf) + DP(o)->column[n].start, DP(o)->column[n].len);
-//				kbytes_t t = {{BA_totext(DP(o)->databuf) + DP(o)->column[n].start}, DP(o)->column[n].len};
+//				kBytes *ba = new_Bytes(ctx, BA_totext((o)->databuf) + (o)->column[n].start, (o)->column[n].len);
+//				kbytes_t t = {{BA_totext((o)->databuf) + (o)->column[n].start}, (o)->column[n].len};
 //				knh_Bytes_write(ctx, ba, t);
 //				v = UPCAST(ba);
 //			}
@@ -194,14 +202,14 @@ KMETHOD ResultSet_getString(KonohaContext *kctx, KonohaStack *sfp)
 //{
 //	knh_putc(ctx, w, '{');
 //	size_t n;
-//	for(n = 0; n < DP(o)->column_size; n++) {
+//	for(n = 0; n < (o)->column_size; n++) {
 //		if(n > 0) {
 //			knh_write_delim(ctx,w);
 //		}
-//		knh_write(ctx, w, S_tobytes(DP(o)->column[n].name));
+//		knh_write(ctx, w, S_tobytes((o)->column[n].name));
 //		knh_printf(ctx, w, "(%d): ", n);
-//		char *p = BA_totext(DP(o)->databuf) + DP(o)->column[n].start;
-//		switch(DP(o)->column[n].ctype) {
+//		char *p = BA_totext((o)->databuf) + (o)->column[n].start;
+//		switch((o)->column[n].ctype) {
 //			case knh_ResultSet_CTYPE__null :
 //				knh_write(ctx, w, STEXT("null"));
 //				break;
@@ -212,10 +220,10 @@ KMETHOD ResultSet_getString(KonohaContext *kctx, KonohaStack *sfp)
 //				knh_write_ffmt(ctx, w, KFLOAT_FMT, (*((kfloat_t*)p)));
 //				break;
 //			case knh_ResultSet_CTYPE__text :
-//				knh_write(ctx, w, B2(p, DP(o)->column[n].len));
+//				knh_write(ctx, w, B2(p, (o)->column[n].len));
 //				break;
 //			case knh_ResultSet_CTYPE__bytes :
-//				knh_printf(ctx, w, "BLOB(%dbytes)", DP(o)->column[n].len);
+//				knh_printf(ctx, w, "BLOB(%dbytes)", (o)->column[n].len);
 //				break;
 //		}
 //	}
