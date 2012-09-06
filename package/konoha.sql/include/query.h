@@ -34,6 +34,8 @@
 /* ------------------------------------------------------------------------ */
 /* K_DSPI_QUERY */
 
+#include <stdio.h>
+
 static void NOP_qfree(kqcur_t *qcur)
 {
 }
@@ -225,6 +227,7 @@ int knh_ResultSet_findColumn(KonohaContext *kctx, kResultSet *o, const char* nam
 
 KMETHOD ResultSet_setInt(KonohaContext *kctx, kResultSet *rs, size_t n, kint_t value)
 {
+	fprintf(stderr, "===<<<ResultSet_setInt>>>===\n");
 	DBG_ASSERT(n < rs->column_size);
 	KUtilsWriteBuffer wb;
 	KLIB Kwb_init(&(kctx->stack->cwb), &wb);

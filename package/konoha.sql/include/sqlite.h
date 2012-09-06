@@ -30,6 +30,7 @@
 /* ************************************************************************** */
 
 #include <sqlite3.h>
+#include <stdio.h>
 
 //------------------------------------------------------------------------ */
 
@@ -37,6 +38,7 @@
 
 kbytes_t knh_bytes_skipPATHHEAD(kbytes_t path)
 {
+	fprintf(stderr, "===<<<knh_bytes_skipPATHHEAD>>>===\n");
 	size_t i;
 	for(i = 1; i < path.len; i++) {
 		if(i == K_PATHHEAD_MAXSIZ) break;
@@ -51,6 +53,7 @@ kbytes_t knh_bytes_skipPATHHEAD(kbytes_t path)
 
 static void knh_sqlite3_perror(KonohaContext* kctx, sqlite3 *db, int r)
 {
+	fprintf(stderr, "===<<<knh_knh_sqlite3_perror>>>===\n");
 //	const char *msg = "sqlite3";
 	if(r == SQLITE_PERM || r == SQLITE_AUTH) {
 		//msg = "Security";
@@ -60,8 +63,10 @@ static void knh_sqlite3_perror(KonohaContext* kctx, sqlite3 *db, int r)
 
 void *SQLITE3_qopen(KonohaContext* kctx,  const char* db)
 {
+	fprintf(stderr, "===<<<SQLITE3_qopen>>>===\n");
 	sqlite3 *db_sqlite3 = NULL;
 //	db = knh_bytes_skipPATHHEAD(db);
+	fprintf(stderr, "%s\n", db);
 	int r = sqlite3_open(db, &db_sqlite3);
 	if (r != SQLITE_OK) {
 		return NULL;
@@ -81,6 +86,7 @@ int SQLITE3_qnext(KonohaContext* kctx, kqcur_t *qcur, kResultSet *rs)
 			int type = sqlite3_column_type(stmt, i);
 			switch(type) {
 				case SQLITE_INTEGER: {
+					fprintf(stderr, "===<<<SQLITE_INTEGER>>>===\n");
 					ResultSet_setInt(kctx, rs, i, (kint_t)sqlite3_column_int64(stmt, i));
 					break;
 				}
@@ -114,7 +120,9 @@ int SQLITE3_qnext(KonohaContext* kctx, kqcur_t *qcur, kResultSet *rs)
 
 kqcur_t *SQLITE3_query(KonohaContext* kctx, void *db, const char* query,struct _kResultSet *rs)
 {
+	fprintf(stderr, "===<<<SQLITE3_query>>>===\n");
 	if(rs == NULL) {
+		fprintf(stderr, "===<<<rs == NULL>>>===\n");
 		int r = sqlite3_exec((sqlite3*)db, query, NULL, NULL, NULL);
 		if(r != SQLITE_OK) {
 			knh_sqlite3_perror(kctx, (sqlite3*)db, r);
@@ -122,6 +130,7 @@ kqcur_t *SQLITE3_query(KonohaContext* kctx, void *db, const char* query,struct _
 		return NULL;
 	}
 	else {
+		fprintf(stderr, "===<<<rs != NULL>>>===\n");
 		sqlite3_stmt *stmt = NULL;
 		sqlite3_prepare((sqlite3*)db, query, strlen(query), &stmt, NULL);
 	/* if (r != SQLITE_OK) { */
@@ -154,11 +163,13 @@ kqcur_t *SQLITE3_query(KonohaContext* kctx, void *db, const char* query,struct _
 
 void SQLITE3_qclose(void *hdr)
 {
+	fprintf(stderr, "===<<<SQLITE3_qclose>>>===\n");
 	sqlite3_close((sqlite3*)hdr);
 }
 
 void SQLITE3_qfree(kqcur_t *qcur)
 {
+	fprintf(stderr, "===<<<SQLITE3_qfree>>>===\n");
 	sqlite3_stmt *stmt = (sqlite3_stmt*)qcur;
 	sqlite3_finalize(stmt);
 }

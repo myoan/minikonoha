@@ -29,7 +29,7 @@
 //  yoan  - Motoki Yoan, Yokohama National University, Japan
 // **************************************************************************
 
-#include<libpq-fe.h>
+#include<postgresql/libpq-fe.h>
 
 /* ------------------------------------------------------------------------ */
 /* [postgresql datatype]    */

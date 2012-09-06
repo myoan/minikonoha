@@ -32,6 +32,8 @@
 /* ------------------------------------------------------------------------ */
 //## method Boolean ResultSet.next();
 
+#include <stdio.h>
+
 KMETHOD ResultSet_next(KonohaContext *kctx, KonohaStack *sfp)
 {
 	RETURNb_(knh_ResultSet_next(kctx, (kResultSet*)sfp[0].asObject));
@@ -68,7 +70,7 @@ static int knh_ResultSet_indexof_(KonohaContext *kctx, KonohaStack *sfp)
 
 KMETHOD ResultSet_getInt(KonohaContext *kctx, KonohaStack *sfp)
 {
-	fprintf(stderr, "hogehogehoge\n");
+	fprintf(stderr, "===<<<ResultSet_getInt>>>===\n");
 	int n = knh_ResultSet_indexof_(kctx, sfp);
 	kint_t res = 0;
 	char data[16];

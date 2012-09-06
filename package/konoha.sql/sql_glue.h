@@ -228,36 +228,77 @@ typedef enum {
 	USING_NONE
 } DBType;
 
-static int db_nameSize(char* query) {
-	char ch = query[0];
-	int i = 0;
-	for (;ch != '\0'; i++) {
-		if (ch == ':') {
-			return i;
-		}
-		ch++;
-	}
-	return -1;
-}
+/* static int db_nameSize(char* query) { */
+/* 	char ch = query[0]; */
+/* 	int i = 0; */
+/* 	for (;ch != '\0'; i++) { */
+/* 		if (ch == ':') { */
+/* 			return i; */
+/* 		} */
+/* 		ch++; */
+/* 	} */
+/* 	return -1; */
+/* } */
+
+
+/* static KMETHOD Connection_new(KonohaContext *kctx, KonohaStack *sfp) */
+/* { */
+/* 	char *query = S_text(sfp[1].asString); */
+/* 	struct _kConnection* con = (struct _kConnection*)KLIB new_kObject(kctx, O_ct(sfp[K_RTNIDX].asObject), 0); */
+/* 	char* dbname[16]; */
+/* 	memset(dbname, '\0', 16); */
+/* 	strncpy(dbname, query, db_nameSize(query)); */
+/* 	if (!strncmp(dbname, "mysql", strlen("mysql"))) { */
+/* 		con->dspi = &DB__mysql; */
+/* 	} */
+/* 	else if (!strncmp(dbname, "sqlite", strlen("sqlite"))) { */
+/* 		con->dspi = &DB__sqlite3; */
+/* 	} */
+/* 	else if (!strncmp(dbname, "postgresql", strlen("postgresql"))) { */
+/* 		con->dspi = &DB__postgresql; */
+/* 	} */
+/* 	else { */
+/* 		/\* error *\/ */
+/* 	} */
+/* 	con->db = con->dspi->qopen(kctx, query); */
+/* 	RETURN_(con); */
+/* } */
+
+/* static int db_nameSize(const char* query) { */
+/* 	fprintf(stderr, "===<<<db_nameSize>>>===\n"); */
+/* 	const char *ch = query; */
+/* 	fprintf(stderr, "%s\n", query); */
+/* 	int i = 0; */
+/* 	for (;ch != '\0'; i++) { */
+/* 		if (*ch == ':') { */
+/* 			return i; */
+/* 		} */
+/* 		ch++; */
+/* 	} */
+/* 	fprintf(stderr, "return -1\n"); */
+/* 	return -1; */
+/* } */
 
 static KMETHOD Connection_new(KonohaContext *kctx, KonohaStack *sfp)
 {
-	char *query = S_text(sfp[1].asString);
+	fprintf(stderr, "===<<<Connection_new>>>===\n");
+
+	const char *query = S_text(sfp[1].asString);
+	int db_namesize_value;
+
+	fprintf(stderr, "%s\n", query);
+
 	struct _kConnection* con = (struct _kConnection*)KLIB new_kObject(kctx, O_ct(sfp[K_RTNIDX].asObject), 0);
-	char* dbname[16];
-	memset(dbname, '\0', 16);
-	strncpy(dbname, query, db_nameSize(query));
-	if (!strncmp(dbname, "mysql", strlen("mysql"))) {
-	con->dspi = &DB__mysql;
-	}
-	else if (!strncmp(dbname, "sqlite", strlen("sqlite"))) {
-	con->dspi = &DB__sqlite3;
-	}
-	else if (!strncmp(dbname, "postgresql", strlen("postgresql"))) {
-	con->dspi = &DB__postgresql;
-	}
-	else {
-		/* error */
+//	fprintf(stderr, "%d\n", strncmp(query, "mysql", strlen("mysql")));
+	if(strncmp(query, "mysql", strlen("mysql")) == 0) {
+		fprintf(stderr, "===<<<DB_mysql>>>===\n");
+		con->dspi = &DB__mysql;
+	}else if(strncmp(query, "postgresql", strlen("postgresql")) == 0) {
+		fprintf(stderr, "===<<<DB_postgresql>>>===\n");
+		con->dspi = &DB__postgresql;
+	}else{
+		fprintf(stderr, "===<<<SB_sqlite3>>>===\n");
+		con->dspi = &DB__sqlite3;
 	}
 	con->db = con->dspi->qopen(kctx, query);
 	RETURN_(con);

@@ -18,7 +18,7 @@ if(MYSQL_CONFIG OR HAVE_LIBSQLITE OR PG_CONFIG)
 			set(PACKAGE_EXTRA_LIBRARY ${ExtraLibs})
 			set(PACKAGE_SCRIPT_CODE sql_glue.k)
 			set(PACKAGE_SOURCE_CODE ${PACKAGE_SOURCE_CODE}
-				mysql.c
+			  include/mysql.h
 			)
 			include_directories(${HAVE_MYSQL_H})
 		endif(HAVE_MYSQL_H)
@@ -28,7 +28,7 @@ if(MYSQL_CONFIG OR HAVE_LIBSQLITE OR PG_CONFIG)
 		set(ExtraLibs ${ExtraLibs} ${HAVE_LIBSQLITE})
 		set(PACKAGE_EXTRA_LIBRARY ${ExtraLibs})
 		set(PACKAGE_SOURCE_CODE ${PACKAGE_SOURCE_CODE}
-			sqlite.c
+			include/sqlite.h
 		)
 	endif(HAVE_LIBSQLITE)
 
@@ -46,7 +46,7 @@ if(MYSQL_CONFIG OR HAVE_LIBSQLITE OR PG_CONFIG)
 		set(ExtraLibs ${ExtraLibs} ${HAVE_LIBPOSTRESQL})
 		set(PACKAGE_EXTRA_LIBRARY ${ExtraLibs})
 		set(PACKAGE_SOURCE_CODE ${PACKAGE_SOURCE_CODE}
-			postgresql.c
+			include/postgresql.h
 		)
 	endif(PG_CONFIG)
 
