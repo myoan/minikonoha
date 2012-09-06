@@ -67,6 +67,7 @@ void *SQLITE3_qopen(KonohaContext* kctx,  const char* db)
 	sqlite3 *db_sqlite3 = NULL;
 //	db = knh_bytes_skipPATHHEAD(db);
 	fprintf(stderr, "%s\n", db);
+	db += 9;
 	int r = sqlite3_open(db, &db_sqlite3);
 	if (r != SQLITE_OK) {
 		return NULL;
