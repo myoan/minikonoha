@@ -29,6 +29,8 @@
 //  yoan  - Motoki Yoan, Yokohama National University, Japan
 // **************************************************************************
 
+#include <stdio.h>
+
 #ifndef SQL_COMMON_H_
 #define SQL_COMMON_H_
 
@@ -51,6 +53,7 @@ typedef struct {
 
 static inline kbytes_t new_bytes(char *c_buf)
 {
+	fprintf(stderr, "===<<<new_bytes>>>===\n");
 	DBG_ASSERT(c_buf != NULL);
 	kbytes_t t;
 	t.utext = (unsigned char*)c_buf;
@@ -62,6 +65,7 @@ static inline kbytes_t new_bytes(char *c_buf)
 
 int knh_bytes_parseint(kbytes_t t, kint_t *value)
 {
+	fprintf(stderr, "===<<<knh_bytes_parseint>>>===\n");
 	kuint_t n = 0, prev = 0, base = 10;
 	size_t i = 0;
 	if(t.len > 1) {
@@ -111,6 +115,7 @@ int knh_bytes_parseint(kbytes_t t, kint_t *value)
 
 int knh_bytes_parsefloat(kbytes_t t, kfloat_t *value)
 {
+	fprintf(stderr, "===<<<knh_bytes_parsefloat>>>===\n");
 #if defined(K_USING_NOFLOAT)
 	{
 		kint_t v = 0;

@@ -210,10 +210,12 @@ extern kQueryDSPI_t DB__postgresql;
 
 static void Connection_init(KonohaContext *kctx, kObject *o, void *conf)
 {
+	fprintf(stderr, "===<<<Connection_init>>>===\n");
 }
 
 static void Connection_free(KonohaContext *kctx, kObject *o)
 {
+	fprintf(stderr, "===<<<Connection_free>>>===\n");
 }
 
 /* ------------------------------------------------------------------------ */
@@ -296,9 +298,11 @@ static KMETHOD Connection_new(KonohaContext *kctx, KonohaStack *sfp)
 	}else if(strncmp(query, "postgresql", strlen("postgresql")) == 0) {
 		fprintf(stderr, "===<<<DB_postgresql>>>===\n");
 		con->dspi = &DB__postgresql;
-	}else{
+	}else if(strncmp(query, "sqlite", strlen("sqlite")) == 0) {
 		fprintf(stderr, "===<<<SB_sqlite3>>>===\n");
 		con->dspi = &DB__sqlite3;
+	}else{
+        //output error
 	}
 	con->db = con->dspi->qopen(kctx, query);
 	RETURN_(con);
@@ -325,6 +329,7 @@ static KMETHOD Connection_query(KonohaContext *kctx, KonohaStack *sfp)
 
 static KMETHOD Connection_close(KonohaContext *kctx, KonohaStack *sfp)
 {
+	fprintf(stderr, "===<<<Connection_close>>>===\n");
 	struct _kConnection* con = (struct _kConnection*)sfp[0].asObject;
 	con->dspi->qclose(con->db);
 }
@@ -334,6 +339,7 @@ static KMETHOD Connection_close(KonohaContext *kctx, KonohaStack *sfp)
 
 static void ResultSet_init(KonohaContext *kctx, kObject *o, void *conf)
 {
+	fprintf(stderr, "===<<<ResultSet_init>>>===\n");
 	struct _kResultSet *rs = (struct _kResultSet *)o;
 	rs->qcur = NULL;
 	rs->column_size = 0;
@@ -347,6 +353,7 @@ static void ResultSet_init(KonohaContext *kctx, kObject *o, void *conf)
 
 static void ResultSet_free(KonohaContext *kctx, kObject *o)
 {
+	fprintf(stderr, "===<<<ResultSet_free>>>===\n");
 	struct _kResultSet *rs = (struct _kResultSet *)o;
 	if (rs != NULL && rs->column_size > 0) {
 		KFREE((void*)rs->column, sizeof(kDBschema) * rs->column_size);
@@ -355,6 +362,7 @@ static void ResultSet_free(KonohaContext *kctx, kObject *o)
 
 static kbool_t sql_initPackage(KonohaContext *kctx, kNameSpace *ns, int argc, const char**args, kfileline_t pline)
 {
+	fprintf(stderr, "===<<<sql_initPackage>>>===\n");
 	KREQUIRE_PACKAGE("konoha.bytes", pline);
 
 	static KDEFINE_CLASS ConnectionDef = {
@@ -381,6 +389,8 @@ static kbool_t sql_initPackage(KonohaContext *kctx, kNameSpace *ns, int argc, co
 
 		_Public, _F(ResultSet_getInt), TY_Int, TY_ResultSet, MN_("getInt"), 1, TY_String, FN_("query"),
 		_Public, _F(ResultSet_getString), TY_String, TY_ResultSet, MN_("getString"), 1, TY_String, FN_("query"),
+		_Public, _F(ResultSet_setInt), TY_Int, TY_ResultSet, MN_("setInt"), 1, TY_String, FN_("query"),
+//		_Public, _F(ResultSet_setString), TY_String, TY_ResultSet, MN_("setString"), 1, TY_String, FN_("query"),
 		_Public, _F(ResultSet_next), TY_Boolean, TY_ResultSet, MN_("next"), 0,
 		DEND,
 	};

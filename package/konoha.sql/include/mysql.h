@@ -36,6 +36,8 @@
 #include <mysql.h>
 #include <include/sql_common.h>
 
+#include <stdio.h>
+
 #define MYSQL_USER_MAXLEN 16
 #define MYSQL_PASS_MAXLEN 255
 #define MYSQL_HOST_MAXLEN 255
@@ -58,6 +60,7 @@ static void knh_mysql_perror(KonohaContext *kctx, MYSQL *db, int r)
 //static kconn_t *MYSQL_qopen(KonohaContext *kctx, const char* url)
 kconn_t *MYSQL_qopen(KonohaContext *kctx, const char* url)
 {
+	fprintf(stderr, "===<<<MYSQL_qopen>>>===\n");
 	char *puser, user[MYSQL_USER_MAXLEN+1] = {0};
 	char *ppass, pass[MYSQL_PASS_MAXLEN+1] = {0}; // temporary defined
 	char *phost, host[MYSQL_HOST_MAXLEN+1] = {0};
@@ -97,6 +100,7 @@ kconn_t *MYSQL_qopen(KonohaContext *kctx, const char* url)
 //static int MYSQL_qnext(KonohaContext *kctx, kqcur_t *qcur, kResultSet *rs)
 int MYSQL_qnext(KonohaContext *kctx, kqcur_t *qcursor, struct _kResultSet *rs)
 {
+	fprintf(stderr, "===<<<MYSQL_qnext>>>===\n");
 	MYSQL_ROW row;
 	if ((row = mysql_fetch_row((MYSQL_RES*)qcursor)) != NULL) {
 		ktrace(_UserInputFault, KEYVALUE_s("@","mysql_fetch_row"));
@@ -145,6 +149,10 @@ int MYSQL_qnext(KonohaContext *kctx, kqcur_t *qcursor, struct _kResultSet *rs)
 //static kqcur_t *MYSQL_query(KonohaContext *kctx, kconn_t *hdr, kbytes_t sql, kResultSet *rs)
 kqcur_t *MYSQL_query(KonohaContext *kctx, void *hdr, const char* sql, struct _kResultSet *rs)
 {
+	fprintf(stderr, "===<<<MYSQL_query>>>===\n");
+	fprintf(stderr, "<MYSQL_query> sql = %s\n", sql);
+	fprintf(stderr, "<MYSQL_query> rs->databuf->text = %s\n", rs->databuf->text);
+
 	MYSQL_RES *res = NULL;
 	MYSQL *db = (MYSQL*)hdr;
 	if (db == NULL) {
@@ -164,7 +172,9 @@ kqcur_t *MYSQL_query(KonohaContext *kctx, void *hdr, const char* sql, struct _kR
 	}
 	else {
 		/* Connection.query */
+		fprintf(stderr, "------<<<Connection.query>>>-----\n");
 		int r = mysql_query((MYSQL*)db, sql);
+		fprintf(stderr, "r = %d\n", r);
 		ktrace(_UserInputFault,
 				KEYVALUE_s("@","mysql_query"),
 				KEYVALUE_s("query", sql),
@@ -216,6 +226,7 @@ kqcur_t *MYSQL_query(KonohaContext *kctx, void *hdr, const char* sql, struct _kR
 //static void MYSQL_qclose(KonohaContext *kctx, kconn_t *hdr)
 void MYSQL_qclose(kconn_t *db)
 {
+	fprintf(stderr, "===<<<MYSQL_qclose>>>===\n");
 	mysql_close((MYSQL*)db);
 }
 
@@ -224,6 +235,7 @@ void MYSQL_qclose(kconn_t *db)
 //static void MYSQL_qfree(kqcur_t *qcur)
 void MYSQL_qfree(kqcur_t *qcur)
 {
+	fprintf(stderr, "===<<<MYSQL_qfree>>>===\n");
 	if (qcur != NULL) {
 		MYSQL_RES *res = (MYSQL_RES*)qcur;
 		mysql_free_result(res);

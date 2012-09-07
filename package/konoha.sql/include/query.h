@@ -142,6 +142,7 @@ static kQueryDSPI_t NOP_DSPI = {
 
 kbool_t knh_ResultSet_next(KonohaContext *kctx, kResultSet *o)
 {
+	fprintf(stderr, "===<<<knh_ResultSet_next>>>===\n");
 	struct _kResultSet* rs = (struct _kResultSet*)o;
 	if(o->qcur != NULL) {
 		if(rs->connection->dspi->qcurnext(kctx, rs->qcur, rs)) {
@@ -160,6 +161,7 @@ kbool_t knh_ResultSet_next(KonohaContext *kctx, kResultSet *o)
 
 void knh_ResultSet_close(KonohaContext *kctx, kResultSet *o)
 {
+	fprintf(stderr, "===<<<knh_ResultSet_close>>>===\n");
 	struct _kResultSet* rs = (struct _kResultSet*)o;
 	if(rs->qcur != NULL) {
 		rs->qcurfree(rs->qcur);
@@ -171,6 +173,7 @@ void knh_ResultSet_close(KonohaContext *kctx, kResultSet *o)
 
 KMETHOD knh_ResultSet_initColumn(KonohaContext *kctx, kResultSet *o, size_t column_size)
 {
+	fprintf(stderr, "===<<<knh_ResultSet_initColumn>>>===\n");
 	size_t i;
 	struct _kResultSet* rs = (struct _kResultSet*)o;
 	// [TODO]
@@ -202,6 +205,7 @@ KMETHOD knh_ResultSet_initColumn(KonohaContext *kctx, kResultSet *o, size_t colu
 
 int knh_ResultSet_findColumn(KonohaContext *kctx, kResultSet *o, const char* name)
 {
+	fprintf(stderr, "===<<<knh_ResultSet_findColumn>>>===\n");
 	size_t i = 0;
 	for(i = 0; i < o->column_size; i++) {
 		if(strcasecmp(S_text(o->column[i].name), name) == 0) return i;
@@ -244,6 +248,25 @@ KMETHOD ResultSet_setInt(KonohaContext *kctx, kResultSet *rs, size_t n, kint_t v
 	KLIB Kwb_free(&wb);
 }
 
+//KMETHOD ResultSet_setString(KonohaContext *kctx, kResultSet *rs, size_t n, kint_t value)
+//{
+//	fprintf(stderr, "===<<<ResultSet_setString>>>===\n");
+//	DBG_ASSERT(n < rs->column_size);
+//	KUtilsWriteBuffer wb;
+//	KLIB Kwb_init(&(kctx->stack->cwb), &wb);
+//	rs->column[n].ctype = knh_ResultSet_CTYPE__string;
+//	rs->column[n].start = strlen(rs->databuf->text);
+//	rs->column[n].len = 1;
+//	char tmp[sizeof(kint_t)];
+//	memset(&tmp, '\0', 1);
+////	sprintf(tmp, "%ld", (value));
+//	KLIB Kwb_write(kctx, &wb, tmp, 1);
+//	//KLIB Kwb_write(kctx, &wb, (const char*)value, sizeof(kint_t));
+//	const char *KUtilsWriteBufferopChar = KLIB Kwb_top(kctx, &wb, 0);
+//	memcpy((void*)(rs->databuf->text + rs->column[n].start), KUtilsWriteBufferopChar, 1); // including NUL terminate by ensuredZeo
+//	KLIB Kwb_free(&wb);
+//}
+//
 /* ------------------------------------------------------------------------ */
 
 KMETHOD ResultSet_setFloat(KonohaContext *kctx, kResultSet *rs, size_t n, kfloat_t value)

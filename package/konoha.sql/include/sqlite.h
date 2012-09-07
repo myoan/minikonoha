@@ -122,6 +122,7 @@ int SQLITE3_qnext(KonohaContext* kctx, kqcur_t *qcur, kResultSet *rs)
 kqcur_t *SQLITE3_query(KonohaContext* kctx, void *db, const char* query,struct _kResultSet *rs)
 {
 	fprintf(stderr, "===<<<SQLITE3_query>>>===\n");
+	fprintf(stderr, "query = %s\n", query);
 	if(rs == NULL) {
 		fprintf(stderr, "===<<<rs == NULL>>>===\n");
 		int r = sqlite3_exec((sqlite3*)db, query, NULL, NULL, NULL);
@@ -145,8 +146,12 @@ kqcur_t *SQLITE3_query(KonohaContext* kctx, void *db, const char* query,struct _
 	/* 	return NULL; */
 		size_t column_size = (size_t)sqlite3_column_count(stmt);
 		DBG_P("column_size=%d", column_size);
+		fprintf(stderr, "<SQLITE3_query> column_size = %d\n", column_size);
+
 		knh_ResultSet_initColumn(kctx, rs, column_size);
-		if(column_size > 0) {
+		if(column_size == 0) {
+			sqlite3_exec((sqlite3*)db, query, NULL, NULL, NULL);
+		}else if(column_size > 0) {
 			size_t i;
 			for(i = 0; i < column_size; i++) {
 				char *n = (char*)sqlite3_column_name(stmt, i);
