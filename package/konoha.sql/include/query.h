@@ -51,7 +51,7 @@ static kqcur_t *NOP_query(KonohaContext *kctx, void *hdr, const char* sql, struc
 static void NOP_qclose(kconn_t *hdr)
 {
 }
-static int NOP_qnext(KonohaContext *kctx, kqcur_t *qcur, kResultSet *rs)
+static int NOP_qnext(KonohaContext *kctx, kqcur_t *qcur, struct _kResultSet *rs)
 {
 	return 0;  /* NOMORE */
 }

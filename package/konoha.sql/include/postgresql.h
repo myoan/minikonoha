@@ -29,7 +29,8 @@
 //  yoan  - Motoki Yoan, Yokohama National University, Japan
 // **************************************************************************
 
-#include<postgresql/libpq-fe.h>
+#include<libpq-fe.h>
+//#include<postgresql/libpq-fe.h>
 
 /* ------------------------------------------------------------------------ */
 /* [postgresql datatype]    */
@@ -63,7 +64,7 @@ static void *POSTGRESQL_qopen(KonohaContext *kctx, const char* url)
 	return (void*)conn;
 }
 
-static int POSTGRESQL_qnext(KonohaContext *kctx, kqcur_t *qcur, kResultSet *rs)
+static int POSTGRESQL_qnext(KonohaContext *kctx, kqcur_t *qcur, struct _kResultSet *rs)
 {
 	PGresult* res = (PGresult*)qcur;
 	size_t i, row_size = (size_t)PQnfields(res), column_size = PQntuples(res);
@@ -103,7 +104,7 @@ static int POSTGRESQL_qnext(KonohaContext *kctx, kqcur_t *qcur, kResultSet *rs)
 	}
 }
 
-static kqcur_t *POSTGRESQL_query(KonohaContext *kctx, kconn_t *db, const char* sql, kResultSet *rs)
+static kqcur_t *POSTGRESQL_query(KonohaContext *kctx, kconn_t *db, const char* sql, struct _kResultSet *rs)
 {
 	PGresult* res;
 	if(rs == NULL) {

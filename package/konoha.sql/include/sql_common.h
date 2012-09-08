@@ -257,7 +257,7 @@ struct _kQueryDPI_t {
 	//kconn_t* (*qopen)(KonohaContext *kctx, kbytes_t);
 	//kqcur_t* (*qexec)(KonohaContext *kctx, kconn_t *, kbytes_t, kResultSet*);
 	//void   (*qclose)(KonohaContext *kctx, kconn_t *);
-	int    (*qcurnext)(KonohaContext* kctx, kqcur_t * qcur, kResultSet* rs);
+	int    (*qcurnext)(KonohaContext* kctx, kqcur_t * qcur, struct _kResultSet* rs);
 	void   (*qcurfree)(kqcur_t *);
 };
 

@@ -58,7 +58,7 @@ static void knh_mysql_perror(KonohaContext *kctx, MYSQL *db, int r)
 /* ------------------------------------------------------------------------ */
 
 //static kconn_t *MYSQL_qopen(KonohaContext *kctx, const char* url)
-kconn_t *MYSQL_qopen(KonohaContext *kctx, const char* url)
+void *MYSQL_qopen(KonohaContext *kctx, const char* url)
 {
 	fprintf(stderr, "===<<<MYSQL_qopen>>>===\n");
 	char *puser, user[MYSQL_USER_MAXLEN+1] = {0};
@@ -224,7 +224,7 @@ kqcur_t *MYSQL_query(KonohaContext *kctx, void *hdr, const char* sql, struct _kR
 /* ------------------------------------------------------------------------ */
 
 //static void MYSQL_qclose(KonohaContext *kctx, kconn_t *hdr)
-void MYSQL_qclose(kconn_t *db)
+void MYSQL_qclose(void *db)
 {
 	fprintf(stderr, "===<<<MYSQL_qclose>>>===\n");
 	mysql_close((MYSQL*)db);

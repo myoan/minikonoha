@@ -286,7 +286,6 @@ static KMETHOD Connection_new(KonohaContext *kctx, KonohaStack *sfp)
 	fprintf(stderr, "===<<<Connection_new>>>===\n");
 
 	const char *query = S_text(sfp[1].asString);
-	int db_namesize_value;
 
 	fprintf(stderr, "%s\n", query);
 
@@ -295,16 +294,23 @@ static KMETHOD Connection_new(KonohaContext *kctx, KonohaStack *sfp)
 	if(strncmp(query, "mysql", strlen("mysql")) == 0) {
 		fprintf(stderr, "===<<<DB_mysql>>>===\n");
 		con->dspi = &DB__mysql;
+		con->db = con->dspi->qopen(kctx, query);
 	}else if(strncmp(query, "postgresql", strlen("postgresql")) == 0) {
 		fprintf(stderr, "===<<<DB_postgresql>>>===\n");
 		con->dspi = &DB__postgresql;
+		con->db = con->dspi->qopen(kctx, query);
 	}else if(strncmp(query, "sqlite", strlen("sqlite")) == 0) {
-		fprintf(stderr, "===<<<SB_sqlite3>>>===\n");
+		fprintf(stderr, "===<<<DB_sqlite3>>>===\n");
 		con->dspi = &DB__sqlite3;
+		con->db = con->dspi->qopen(kctx, query);
 	}else{
-        //output error
+		//DBG_P("Database not found.");
+		ktrace(_SystemFault,
+				KEYVALUE_s("@", "Connection.new"),
+				KEYVALUE_s("queryname", query)
+			);
+		con = (struct _kConnection*)K_NULL;
 	}
-	con->db = con->dspi->qopen(kctx, query);
 	RETURN_(con);
 }
 

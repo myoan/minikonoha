@@ -144,7 +144,7 @@ set(PACKAGES
 	python
 	apache
 #	openssl
-	logpool
+#	logpool
 	konoha.date
 )
 
