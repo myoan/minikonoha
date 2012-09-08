@@ -36,7 +36,6 @@
 
 KMETHOD ResultSet_next(KonohaContext *kctx, KonohaStack *sfp)
 {
-	fprintf(stderr, "===<<<ResultSet_next>>>===\n");
 	RETURNb_(knh_ResultSet_next(kctx, (kResultSet*)sfp[0].asObject));
 }
 
@@ -44,7 +43,6 @@ KMETHOD ResultSet_next(KonohaContext *kctx, KonohaStack *sfp)
 
 static int knh_ResultSet_indexof_(KonohaContext *kctx, KonohaStack *sfp)
 {
-	fprintf(stderr, "===<<<knh_ResultSet_indexof_>>>===\n");
 	kResultSet *o = (kResultSet*)sfp[0].o;
 	if(IS_Int(sfp[1].asObject)) {
 		size_t n = (size_t)sfp[1].intValue;
@@ -72,7 +70,6 @@ static int knh_ResultSet_indexof_(KonohaContext *kctx, KonohaStack *sfp)
 
 KMETHOD ResultSet_getInt(KonohaContext *kctx, KonohaStack *sfp)
 {
-	fprintf(stderr, "===<<<ResultSet_getInt>>>===\n");
 	int n = knh_ResultSet_indexof_(kctx, sfp);
 	kint_t res = 0;
 	char data[16];
@@ -102,7 +99,6 @@ KMETHOD ResultSet_getInt(KonohaContext *kctx, KonohaStack *sfp)
 
 KMETHOD ResultSet_getFloat(KonohaContext *kctx, KonohaStack *sfp)
 {
-	fprintf(stderr, "===<<<ResultSet_getFloat>>>===\n");
 	int n = knh_ResultSet_indexof_(kctx, sfp);
 	kfloat_t res = 0.0;
 	if(n >= 0) {
@@ -127,9 +123,9 @@ KMETHOD ResultSet_getFloat(KonohaContext *kctx, KonohaStack *sfp)
 
 KMETHOD ResultSet_getString(KonohaContext *kctx, KonohaStack *sfp)
 {
-	fprintf(stderr, "===<<<ResultSet_getString>>>===\n");
 	int n = knh_ResultSet_indexof_(kctx, sfp);
 	kResultSet* o = (kResultSet*)sfp[0].asObject;
+	fprintf(stderr, "n: %d, column_size: %d\n", n, o->column_size);
 	DBG_ASSERT(n < o->column_size);
 	const char *p = o->databuf->text + o->column[n].start;
 	switch(o->column[n].ctype) {
