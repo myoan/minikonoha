@@ -24,6 +24,8 @@
 
 #include <minikonoha/minikonoha.h>
 #include <minikonoha/sugar.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 // --------------------------------------------------------------------------
 
@@ -39,11 +41,10 @@ static kbool_t dollar_setupPackage(KonohaContext *kctx, kNameSpace *ns, isFirstT
 
 // --------------------------------------------------------------------------
 
-//static kExpr* ParseExpr_DollarSymbol(KonohaContext *kctx, kStmt *stmt, kToken *tk)
-//{
-//
+//static kExpr* ParseExpr_DollarSymbol(KonohaContext *kctx, kStmt *stmt, kToken *tk) {
 //}
 
+#include <stdio.h>
 
 static KMETHOD ParseExpr_dollar(KonohaContext *kctx, KonohaStack *sfp)
 {
@@ -52,10 +53,73 @@ static KMETHOD ParseExpr_dollar(KonohaContext *kctx, KonohaStack *sfp)
 	if(currentIdx + 1 < endIdx) {
 		kToken *nextToken = tokenList->tokenItems[currentIdx+1];
 		DBG_P("nextToken='%s'", S_text(nextToken->text));
-//		if(nextToken->resolvedSyntaxInfo->keyword == KW_SymbolPattern) {
-//			RETURN_(ParseExpr_DollarSymbol(kctx, stmt, nextToken));
+		if(nextToken->resolvedSyntaxInfo->keyword == KW_SymbolPattern) {
+			char ch;
+			const char* varname = S_text(nextToken->text);
+			ch = varname[0];
+			switch (ch) {
+				case '0':
+					//KUtilsKeyValue* result = kNameSpace_getConstNULL(kctx, Stmt_nameSpace(stmt), symbol);
+					break;
+				case '1': case '2': case '3':
+				case '4': case '5': case '6':
+				case '7': case '8': case '9':
+					//KUtilsKeyValue* result = kNameSpace_getConstNULL(kctx, Stmt_nameSpace(stmt), symbol);
+					break;
+				default: { /* variable */
+					kExpr *expr = SUGAR kStmt_parseExpr(kctx, stmt, tokenList, currentIdx + 1, endIdx);
+					RETURN_(expr);
+					break;
+				}
+			}
+		}
+		else if(nextToken->resolvedSyntaxInfo->keyword == KW_ParenthesisGroup) {
+			// command $(...)
+			kArray *cmdList = nextToken->subTokenList;
+			//fprintf(stderr, "cmdToken='%s'\n", S_text(cmdList->tokenItems[0]->text));
+			//fprintf(stderr, "cmdToken='%s'\n", S_text(cmdList->tokenItems[1]->text));
+			//fprintf(stderr, "cmdToken='%s'\n", S_text(cmdList->tokenItems[2]->text));
+		}
+//		else if(nextTokenAfterClassName->resolvedSyntaxInfo->keyword == KW_BracketGroup) {     // dollar int [100]
+//			SugarSyntax *syn = SYN_(Stmt_nameSpace(stmt), SYM_("dollar"));
+//			KonohaClass *arrayClass = CT_p0(kctx, CT_Array, foundClass->typeId);
+//			dollarToken->resolvedSymbol = MN_("dollarArray");
+//			kExpr *expr = SUGAR dollar_UntypedCallStyleExpr(kctx, syn, 2, dollarToken, NewExpr(kctx, syn, tokenList->tokenVarItems[beginIdx+1], arrayClass->typeId));
+//			RETURN_(expr);
 //		}
-
+	}
+	else {
+		char ch;
+		kToken *currentToken = tokenList->tokenItems[currentIdx];
+		const char* varname = S_text(currentToken->text);
+		ch = varname[1];
+		// convert $varname to each special variable;
+		kTokenVar *dollarToken;
+		switch (ch) {
+			case '$': {
+				pid_t pid = getpid();
+				RETURN_(SUGAR kExpr_setUnboxConstValue(kctx, NULL, TY_int, (uintptr_t)pid));
+				break;
+			}
+			case '#':
+				//getArgNum();
+				break;
+			case '@':
+				//getArgAsArray();
+				break;
+			case '?':
+				break;
+			case '!':
+				break;
+			case '-':
+				break;
+			default: {
+				break;
+			}
+		}
+		KSETv(tokenList, tokenList->tokenItems[currentIdx], dollarToken);
+		kExpr *expr = SUGAR kStmt_parseExpr(kctx, stmt, tokenList, currentIdx, endIdx);
+		RETURN_(expr);
 	}
 //	KonohaClass *foundClass = NULL;
 //	int nextIdx = SUGAR kStmt_parseTypePattern(kctx, stmt, Stmt_nameSpace(stmt), tokenList, beginIdx + 1, endIdx, &foundClass);
@@ -89,6 +153,13 @@ static kbool_t dollar_initNameSpace(KonohaContext *kctx, kNameSpace *packageName
 {
 	KDEFINE_SYNTAX SYNTAX[] = {
 		{ .keyword = SYM_("$"), ParseExpr_(dollar), .precedence_op1 = C_PRECEDENCE_CALL},
+		{ .keyword = SYM_("$#"), ParseExpr_(dollar), .precedence_op1 = C_PRECEDENCE_CALL},
+		{ .keyword = SYM_("$$"), ParseExpr_(dollar), .precedence_op1 = C_PRECEDENCE_CALL},
+		{ .keyword = SYM_("$*"), ParseExpr_(dollar), .precedence_op1 = C_PRECEDENCE_CALL},
+		{ .keyword = SYM_("$@"), ParseExpr_(dollar), .precedence_op1 = C_PRECEDENCE_CALL},
+		{ .keyword = SYM_("$?"), ParseExpr_(dollar), .precedence_op1 = C_PRECEDENCE_CALL},
+		{ .keyword = SYM_("$!"), ParseExpr_(dollar), .precedence_op1 = C_PRECEDENCE_CALL},
+		{ .keyword = SYM_("$-"), ParseExpr_(dollar), .precedence_op1 = C_PRECEDENCE_CALL},
 		{ .keyword = KW_END, },
 	};
 	SUGAR kNameSpace_defineSyntax(kctx, ns, SYNTAX, packageNameSpace);
